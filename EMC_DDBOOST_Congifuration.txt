@@ -7,42 +7,42 @@ msagentadmin administration --registerLB --config "D:\Program Files\DPSAPPS\MSAP
 
 For example, create the D:\ddconfig.cfg file with the following contents:
 Non-Prod.
-DDBOOST_USER=sqlddboost
-DEVICE_HOST=dd7200.amerus.corp.tld
-DEVICE_PATH=/Waukee_SQLDDBOOST
+DDBOOST_USER=xxxxxxxx
+DEVICE_HOST=x.x.x.x.x
+DEVICE_PATH=/xxxx_xxxxxxxx
 LOCKBOX_PATH="C:\Program Files\DPSAPPS\common\lockbox"
-CLIENT=n01wdb001.amerus.corp.tld
+CLIENT=x.x.x.x.x
 DEBUG_LEVEL=0
 
 
 PROD
-DDBOOST_USER=sqlddboost
-DEVICE_HOST=dd7200.amerus.corp.tld
-DEVICE_PATH=/Waukee_SQLDDBOOST_PROD
+DDBOOST_USER=xxxxxxxx
+DEVICE_HOST=x.x.x.x.x
+DEVICE_PATH=/xxxx_xxxxxxxx_PROD
 LOCKBOX_PATH="D:\Program Files\DPSAPPS\MSAPPAGENT\lockbox"
-CLIENT=P01wdb002.amerus.corp.tld
+CLIENT=x.x.x.x.x
 DEBUG_LEVEL=0
 
 
-msagentadmin administration --grantLB --lockbox "D:\Program Files\DPSAPPS\MSAPPAGENT\lockbox" -a "LOCKBOX_REMOTE_HOST=dd7200-mgt.amerus.corp.tld"  [--debug 9] 
+msagentadmin administration --grantLB --lockbox "D:\Program Files\DPSAPPS\MSAPPAGENT\lockbox" -a "LOCKBOX_REMOTE_HOST=x.x.x.x.x.x.x"  [--debug 9] 
  
 i forgot to get this setting correct
-[?4/?21/?2017 8:45 PM] Suman Dorwal: 
+
 LOCKBOX_PATH="C:\Program Files\DPSAPPS\common\lockbox" 
-[?4/?21/?2017 8:45 PM] Suman Dorwal: 
+ 
 this should be in D:\
 in confg file
-DDBOOST_USER=sqlddboost
-DEVICE_HOST=dd7200.amerus.corp.tld
-DEVICE_PATH=/Waukee_SQLDDBOOST
+DDBOOST_USER=xxxxxxxx
+DEVICE_HOST=x.x.x.x.x
+DEVICE_PATH=/xxxx_xxxxxxxx
 LOCKBOX_PATH="D:\Program Files\DPSAPPS\common\lockbox"
-CLIENT=n01wdb001.amerus.corp.tld; n01wdb002.amerus.corp.tld; n01wdb003.amerus.corp.tld;
+CLIENT=x.x.x.x.x; xxxxxxxxx; xxxxxxxxxx;
 DEBUG_LEVEL=0 
 
 
-DDBOOST_USER=sqlddboost
-DEVICE_HOST=dd7200.amerus.corp.tld
-DEVICE_PATH=/Waukee_SQLDDBOOST
+DDBOOST_USER=xxxxxxxx
+DEVICE_HOST=x.x.x.x.x
+DEVICE_PATH=/xxxx_xxxxxxxx
 LOCKBOX_PATH="D:\Program Files\DPSAPPS\MSAPPAGENT\lockbox"
 CLIENT=D01WDB001.amerus.corp.tld
 DEBUG_LEVEL=0
