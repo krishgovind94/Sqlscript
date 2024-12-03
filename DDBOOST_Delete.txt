@@ -2,7 +2,7 @@ List all the backups from the DDBOOST
 USE [master]
 GO
 DECLARE @returnCode int
-EXEC @returnCode = dbo.emc_run_delete  '   -n mssql -a "LOCKBOX_PATH=D:\Program Files\DPSAPPS\MSAPPAGENT\lockbox" -a "DDBOOST_USER=sqlddboost" -a "DEVICE_PATH=/Waukee_SQLDDBOOST" -a "DEVICE_HOST=dd7200-mgt.amerus.corp.tld" -a "CLIENT=WDB1523.amerus.corp.tld"'
+EXEC @returnCode = dbo.emc_run_delete  '   -n mssql -a "LOCKBOX_PATH=D:\Program Files\DPSAPPS\MSAPPAGENT\lockbox" -a "DDBOOST_USER=xxxxx" -a "DEVICE_PATH=/xxxxxxxxx" -a "DEVICE_HOST=x.x.x.x.x" -a "CLIENT=x.x.x.x"'
 IF @returnCode <> 0
 BEGIN
 RAISERROR ('Fail!', 16, 1)
@@ -15,7 +15,7 @@ Delete expired backup from DDBoost
 USE [master]
 GO
 DECLARE @returnCode int
-EXEC @returnCode = dbo.emc_run_delete ' -n mssql -a "LOCKBOX_PATH=D:\Program Files\DPSAPPS\MSAPPAGENT\lockbox" -a "DDBOOST_USER=sqlddboost" -a "DEVICE_PATH=/Waukee_SQLDDBOOST" -a "DEVICE_HOST=dd7200-mgt.amerus.corp.tld" -a "CLIENT=WDB1523.amerus.corp.tld" -k'
+EXEC @returnCode = dbo.emc_run_delete ' -n mssql -a "LOCKBOX_PATH=D:\Program Files\DPSAPPS\MSAPPAGENT\lockbox" -a "DDBOOST_USER=xxxxxxxx" -a "DEVICE_PATH=/xxxxxxxT" -a "DEVICE_HOST=dx-x.x.x.x.x" -a "CLIENT=x.x.x.x" -k'
 IF @returnCode <> 0
 BEGIN
 RAISERROR ('Fail!', 16, 1)
