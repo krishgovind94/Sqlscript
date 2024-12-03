@@ -1,0 +1,12 @@
+SELECT 
+TableName = obj.name,
+TotalRows = prt.rows,
+[SpaceUsed(KB)] = SUM(alloc.used_pages)*8
+FROM sys.objects obj
+JOIN sys.indexes idx on obj.object_id = idx.object_id
+JOIN sys.partitions prt on obj.object_id = prt.object_id
+JOIN sys.allocation_units alloc on alloc.container_id = prt.partition_id
+WHERE
+obj.type = 'U' AND idx.index_id IN (0, 1)
+GROUP BY obj.name, prt.rows
+ORDER BY TableName 

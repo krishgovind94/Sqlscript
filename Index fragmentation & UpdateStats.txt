@@ -1,0 +1,56 @@
+SELECT OBJECT_NAME(ind.OBJECT_ID) AS TableName, 
+ind.name AS IndexName, indexstats.index_type_desc AS IndexType,  
+indexstats.avg_fragmentation_in_percent 
+FROM sys.dm_db_index_physical_stats(DB_ID(), NULL, NULL, NULL, NULL) indexstats 
+INNER JOIN sys.indexes ind  
+ON ind.object_id = indexstats.object_id 
+AND ind.index_id = indexstats.index_id 
+WHERE indexstats.index_type_desc !='HEAP'
+ORDER BY indexstats.avg_fragmentation_in_percent DESC;
+
+
+--Find Details for Statistics of Whole Database
+SELECT DISTINCT
+OBJECT_NAME(s.[object_id]) AS TableName,
+c.name AS ColumnName,
+s.name AS StatName,
+STATS_DATE(s.[object_id], s.stats_id) AS LastUpdated,
+DATEDIFF(d,STATS_DATE(s.[object_id], s.stats_id),getdate()) DaysOld,
+dsp.modification_counter,
+s.auto_created,
+s.user_created,
+s.no_recompute,
+s.[object_id],
+s.stats_id,
+sc.stats_column_id,
+sc.column_id
+FROM sys.stats s
+JOIN sys.stats_columns sc
+ON sc.[object_id] = s.[object_id] AND sc.stats_id = s.stats_id
+JOIN sys.columns c ON c.[object_id] = sc.[object_id] AND c.column_id = sc.column_id
+JOIN sys.partitions par ON par.[object_id] = s.[object_id]
+JOIN sys.objects obj ON par.[object_id] = obj.[object_id]
+CROSS APPLY sys.dm_db_stats_properties(sc.[object_id], s.stats_id) AS dsp
+WHERE OBJECTPROPERTY(s.OBJECT_ID,'IsUserTable') = 1
+AND (s.auto_created = 1 OR s.user_created = 1)
+ORDER BY DaysOld;
+
+
+=======================================
+
+SELECT DB_NAME() Database_Name, OBJECT_NAME(IXOS.OBJECT_ID)  Table_Name 
+       ,IX.name  Index_Name
+          ,IXOS.partition_number
+          ,IX.type_desc Index_Type
+          ,SUM(PS.[used_page_count]) * 8 IndexSizeKB
+       ,IXOS.LEAF_INSERT_COUNT NumOfInserts
+       ,IXOS.LEAF_UPDATE_COUNT NumOfupdates
+       ,IXOS.LEAF_DELETE_COUNT NumOfDeletes        
+FROM   SYS.DM_DB_INDEX_OPERATIONAL_STATS (NULL,NULL,NULL,NULL ) IXOS 
+INNER JOIN SYS.INDEXES AS IX ON IX.OBJECT_ID = IXOS.OBJECT_ID AND IX.INDEX_ID =    IXOS.INDEX_ID 
+       INNER JOIN sys.dm_db_partition_stats PS on PS.object_id=IX.object_id
+WHERE  OBJECTPROPERTY(IX.[OBJECT_ID],'IsUserTable') = 1
+and OBJECT_NAME(IXOS.OBJECT_ID)='DAS_TTH_TradeTagHistory'
+GROUP BY OBJECT_NAME(IXOS.OBJECT_ID), IX.name, IX.type_desc,IXOS.LEAF_INSERT_COUNT, IXOS.LEAF_UPDATE_COUNT,IXOS.LEAF_DELETE_COUNT,IXOS.partition_number
+order by 3,4;
+

@@ -1,0 +1,59 @@
+DROP table if exists #results;
+GO
+select
+       object_name(object_id) as "object name"
+,      pl.[query_id]
+,      pl.[plan_id]
+,      qt.[query_text_id]
+,      execution_type_desc
+,       rts.execution_type
+,       avg_rowcount
+,      CONVERT(smalldatetime, SWITCHOFFSET(rtsi.[start_time] , DATEPART(tz,SYSDATETIMEOFFSET()))) as "interval_start_time"
+,      CONVERT(smalldatetime, SWITCHOFFSET(rtsi.[end_time] , DATEPART(tz,SYSDATETIMEOFFSET()))) as "interval_end_time"
+,      rts.[last_duration]/1000 as "last_duration_ms"
+,      rts.[min_duration]/1000 as "min_duration_ms"
+,      rts.[max_duration]/1000 as "max_duration_ms"
+,      ROUND(rts.[avg_duration]/1000,2) as "avg_duration_ms"
+,      rts.[count_executions]
+,      ((rts.[avg_logical_io_reads] + rts.[avg_physical_io_reads])/128)/1024 as "avg_reads_GB"
+,      ((rts.[avg_logical_io_writes])/1024) as "avg_writes_GB"
+, qt.[query_sql_text]
+into #results
+from
+       sys.query_store_runtime_stats rts
+join
+       sys.query_store_runtime_stats_interval rtsi
+       on (rts.[runtime_stats_interval_id] = rtsi.[runtime_stats_interval_id])
+join
+       sys.query_store_plan  pl
+       on (rts.plan_id = pl.plan_id)
+join
+       sys.query_store_query q
+       on (pl.query_id = q.[query_id])
+join
+       sys.query_store_query_text qt
+       on (q.query_text_id = qt.query_text_id)
+-- uncomment the lines below if you want to limit the content of the temporary table, in most cases you can leave these commented
+--where
+  --execution_type <> 0  --and rtsi.[start_time] >= '22 May 2019 18:00'
+----and     
+--object_id = object_id('schema.procedurename') and rtsi.[start_time] >= '22 May 2019 18:00'
+--order by
+--       rtsi.[start_time] desc;
+GO
+
+
+***************************Run the above for fetching data****************************  
+  
+/*
+Execute the appropriate queries below to search your temporary table
+*/
+  
+--TOP 10 DISK READS
+select top 10 * from #results order by avg_reads_GB desc
+  
+--SEARCH FOR SPECIFIC STRING
+select * from #results where query_sql_text like '%estimates.best%' order by interval_start_time DESC
+  
+--SEARCH FOR SPECIFIC PROCEDURE OR FUNCTION
+select * from #results where [object name] = 'LookThroughRiskBatchProcess'  order by interval_start_time desc

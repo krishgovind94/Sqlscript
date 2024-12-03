@@ -1,0 +1,13 @@
+--Check the status for the job
+
+select name,enabled from msdb..sysjobs where name like '%DD Cleanup%'
+
+
+--Disable the Job
+
+EXEC msdb.dbo.sp_update_job @job_name='DD Cleanup',@enabled = 0
+
+
+--Enable the Job
+
+EXEC msdb.dbo.sp_update_job @job_name='DD Cleanup',@enabled = 1

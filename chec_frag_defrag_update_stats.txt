@@ -1,0 +1,35 @@
+--CHECK FRAGMENTATION 
+SELECT 
+ DB_NAME(DATABASE_ID) AS [DatabaseName], 
+ OBJECT_NAME(OBJECT_ID) AS TableName, 
+ SI.NAME AS IndexName, 
+ INDEX_TYPE_DESC AS IndexType, 
+ AVG_FRAGMENTATION_IN_PERCENT AS AvgPageFragmentation, 
+ PAGE_COUNT AS PageCounts 
+FROM sys.dm_db_index_physical_stats (DB_ID(), NULL, NULL , NULL, N'LIMITED') DPS 
+INNER JOIN sysindexes SI 
+ON DPS.OBJECT_ID = SI.ID AND DPS.INDEX_ID = SI.INDID 
+ORDER BY AVG_FRAGMENTATION_IN_PERCENT DESC 
+GO 
+--DEFRAGMENT ALL INDEXES 
+DECLARE @TableName VARCHAR(255) 
+ DECLARE @sql NVARCHAR(500) 
+ DECLARE @fillfactor INT 
+ SET @fillfactor = 80 
+ DECLARE TableCursor CURSOR FOR 
+ SELECT OBJECT_SCHEMA_NAME([object_id])+'.'+name AS TableName 
+ FROM sys.tables 
+ OPEN TableCursor 
+ FETCH NEXT FROM TableCursor INTO @TableName 
+ WHILE @@FETCH_STATUS = 0 
+ BEGIN 
+ SET @sql = 'ALTER INDEX ALL ON ' + @TableName + ' REBUILD WITH (FILLFACTOR = ' + CONVERT(VARCHAR(3),@fillfactor) + ')' 
+ EXEC (@sql) 
+ FETCH NEXT FROM TableCursor INTO @TableName 
+ END 
+ CLOSE TableCursor 
+ DEALLOCATE TableCursor 
+ GO 
+
+--UPDATE ALL STATISTICS 
+EXEC sp_updatestats;  

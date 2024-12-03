@@ -1,0 +1,4 @@
+USE Test1;  
+GO  
+EXEC sp_rename 'dbo.employee.emplid', 'EmpID', 'COLUMN';  
+GO

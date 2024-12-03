@@ -1,0 +1,63 @@
+select 'alter database ['+name+'] set recovery simple' from master.sys.databases where database_id > 4 and state_desc = 'online'
+
+
+recovery model automation script
+
+use [master]
+go
+
+-- Declare variable for each database name
+declare @databaseName nvarchar(128)
+
+-- Define the cursor
+declare databaseCursor cursor
+
+-- Define the cursor dataset
+for
+SELECT  name FROM sys.databases WHERE recovery_model_desc !='SIMPLE'and name NOT IN ('master','tempdb','model','msdb')
+
+-- Start loop
+open databaseCursor
+
+-- Get information from the first row
+fetch next from databaseCursor into @databaseName
+
+-- Loop until there are no more rows
+while @@fetch_status = 0
+begin
+print 'Setting recovery model to Simple for database [' + @databaseName + ']'
+exec('alter database [' + @databaseName + '] set recovery Simple')
+
+-- Get information from next row
+fetch next from databaseCursor into @databaseName
+end
+
+-- End loop and clean up
+close databaseCursor
+deallocate databaseCursor
+go
+
+
+
+-----------------------------------------------------------------------------
+--*TO kNOW THE db RECOVERY MODEL*
+-----------------------------------------------------------------------------
+Create Table #tmp 
+(dbname varchar(100), RecoveryModel sql_variant)
+
+INSERT INTO #tmp
+EXEC sp_msforeachdb '
+SELECT ''?'', DATABASEPROPERTYEX(''?'', N''RECOVERY'')
+'
+
+Select * from #tmp
+
+Drop Table #tmp 
+
+------------------------------------------------------------------------------
+--CHANGE RECOVERY TO SIMPLE 
+------------------------------------------------------------------------------
+
+ALTER DATABASE Your-database-name SET RECOVERY simple ;
+
+

@@ -1,0 +1,18 @@
+/**  To know whether traces enabled/not  in server **/
+
+DBCC TRACESTATUS(-1)
+GO
+
+/** To enable trace **/
+
+DBCC TRACEON (1204,-1)
+GO
+DBCC TRACEON (1222,-1)
+GO
+
+/**To disable the trace**/
+
+DBCC TRACEOFF (1204,-1)
+GO
+DBCC TRACEOFF (1222,-1)
+GO
