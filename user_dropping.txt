@@ -1,13 +1,13 @@
 
-Script to drop user from all DB’s at once.
+Script to drop user from all DBâ€™s at once.
 
 EXEC sp_MSForEachDB 'USE [?];
-        IF  EXISTS (SELECT * FROM sys.database_principals WHERE name = N''AMERUS\SV-CAUIM-DB'')
-        DROP USER [AMERUS\SV-CAUIM-DB]; '
+        IF  EXISTS (SELECT * FROM sys.database_principals WHERE name = N''xxxxx\xxxxxxx'')
+        DROP USER [xxxxx\xxxxxxx]; '
 
 Delete login from server:
 
 USE [master]
 GO
-DROP LOGIN [AMERUS\SV-CAUIM-DB]
+DROP LOGIN [xxxxx\xxxxxxx]
 GO
