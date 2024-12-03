@@ -1,0 +1,64 @@
+--Tempdb Free Space:
+--Following command helps to find the free space available in each tempdb data and log file.
+--USE tempdb
+SELECT  DB_NAME() AS DbName ,
+        sd.name FileGroup,
+        sf.name AS FileName ,
+        sf.type_desc ,
+        sf.physical_name ,
+        sf.size / 128.0 AS CurrentSizeMB ,
+        sf.size / 128.0 - CAST(FILEPROPERTY(sf.name, 'SpaceUsed') AS INT) / 128.0 AS FreeSpaceMB ,
+        LEFT(ROUND(( 1 - ( ( CAST(FILEPROPERTY(sf.name, 'SpaceUsed') AS INT)
+                             / 128.0 ) / ( sf.size / 128.0 ) ) ) * 100, 2), 4)
+        + '%' [% Free Space] ,
+        sf.is_percent_growth ,
+        sf.growth * 1.0 / 128 AS [Growth MBPS]
+FROM    sys.database_files sf
+        left JOIN sys.data_spaces sd ON sf.data_space_id = sd.data_space_id 
+ORDER BY DbName
+
+--Check for space used for Version Store:
+--Following query will show total number of pages used by the version store and the total space in MB used by internal objects in tempdb.
+USE Tempdb
+SELECT SUM(version_store_reserved_page_count) AS [version store pages used],
+(SUM(version_store_reserved_page_count)*1.0/128) AS [version store space in MB]
+FROM sys.dm_db_file_space_usage;
+
+--If the version store is using a lot of space in tempdb, you must determine what the longest running transaction using following query.
+SELECT transaction_id, elapsed_time_seconds, session_id
+FROM sys.dm_tran_active_snapshot_database_transactions 
+ORDER BY elapsed_time_seconds DESC;
+
+--Check for space used by Internal Objects:
+--Following query will show total number of pages used by internal objects and the total space in MB used by internal objects in tempdb.
+USE Tempdb
+SELECT SUM(internal_object_reserved_page_count) AS [internal object pages used],
+(SUM(internal_object_reserved_page_count)*1.0/128) AS [internal object space in MB]
+FROM sys.dm_db_file_space_usage;
+
+--Check for space used by User Objects:
+--Following query will show total number of pages used by user objects and the total space in MB used by internal objects in tempdb.
+USE Tempdb
+SELECT SUM(user_object_reserved_page_count) AS [user object pages used],
+(SUM(user_object_reserved_page_count)*1.0/128) AS [user object space in MB]
+FROM sys.dm_db_file_space_usage;
+
+--Check for space used each session:
+--Following query will show the number of pages used by the each session and the total space in MB used by internal objects in tempdb.
+
+select session_id,internal_objects_alloc_page_count, ((internal_objects_alloc_page_count)*1.0/128) as Internal_objects_space_used_MB
+,user_objects_alloc_page_count, ((user_objects_alloc_page_count)*1.0/128) as user_objects_space_used_MB
+from sys.dm_db_session_space_usage where database_id=2 order by 
+internal_objects_alloc_page_count DESC
+
+--internal objects and user objects(# and ##tables created by user ...willn ot drop if connection is closed but restart will fix)
+SELECT COALESCE(T1.session_id, T2.session_id) [session_id], T1.request_id, COALESCE(T1.database_id, T2.database_id) [database_id], COALESCE(T1.[Total Allocation User Objects], 0)+T2.[Total Allocation User Objects] [Total Allocation User Objects], COALESCE(T1.[Net Allocation User Objects], 0)+T2.[Net Allocation User Objects] [Net Allocation User Objects], COALESCE(T1.[Total Allocation Internal Objects], 0)+T2.[Total Allocation Internal Objects] [Total Allocation Internal Objects], COALESCE(T1.[Net Allocation Internal Objects], 0)+T2.[Net Allocation Internal Objects] [Net Allocation Internal Objects], COALESCE(T1.[Total Allocation], 0)+T2.[Total Allocation] [Total Allocation], COALESCE(T1.[Net Allocation], 0)+T2.[Net Allocation] [Net Allocation], COALESCE(T1.[Query Text], T2.[Query Text]) [Query Text]
+FROM(SELECT TS.session_id, TS.request_id, TS.database_id, CAST(TS.user_objects_alloc_page_count / 128 AS DECIMAL(15, 2)) [Total Allocation User Objects], CAST((TS.user_objects_alloc_page_count-TS.user_objects_dealloc_page_count)/ 128 AS DECIMAL(15, 2)) [Net Allocation User Objects], CAST(TS.internal_objects_alloc_page_count / 128 AS DECIMAL(15, 2)) [Total Allocation Internal Objects], CAST((TS.internal_objects_alloc_page_count-TS.internal_objects_dealloc_page_count)/ 128 AS DECIMAL(15, 2)) [Net Allocation Internal Objects], CAST((TS.user_objects_alloc_page_count+internal_objects_alloc_page_count)/ 128 AS DECIMAL(15, 2)) [Total Allocation], CAST((TS.user_objects_alloc_page_count+TS.internal_objects_alloc_page_count-TS.internal_objects_dealloc_page_count-TS.user_objects_dealloc_page_count)/ 128 AS DECIMAL(15, 2)) [Net Allocation], T.text [Query Text]
+     FROM sys.dm_db_task_space_usage TS
+          INNER JOIN sys.dm_exec_requests ER ON ER.request_id=TS.request_id AND ER.session_id=TS.session_id
+          OUTER APPLY sys.dm_exec_sql_text(ER.sql_handle) T ) T1
+    RIGHT JOIN(SELECT SS.session_id, SS.database_id, CAST(SS.user_objects_alloc_page_count / 128 AS DECIMAL(15, 2)) [Total Allocation User Objects], CAST((SS.user_objects_alloc_page_count-SS.user_objects_dealloc_page_count)/ 128 AS DECIMAL(15, 2)) [Net Allocation User Objects], CAST(SS.internal_objects_alloc_page_count / 128 AS DECIMAL(15, 2)) [Total Allocation Internal Objects], CAST((SS.internal_objects_alloc_page_count-SS.internal_objects_dealloc_page_count)/ 128 AS DECIMAL(15, 2)) [Net Allocation Internal Objects], CAST((SS.user_objects_alloc_page_count+internal_objects_alloc_page_count)/ 128 AS DECIMAL(15, 2)) [Total Allocation], CAST((SS.user_objects_alloc_page_count+SS.internal_objects_alloc_page_count-SS.internal_objects_dealloc_page_count-SS.user_objects_dealloc_page_count)/ 128 AS DECIMAL(15, 2)) [Net Allocation], T.text [Query Text]
+               FROM sys.dm_db_session_space_usage SS
+                    LEFT JOIN sys.dm_exec_connections CN ON CN.session_id=SS.session_id
+                    OUTER APPLY sys.dm_exec_sql_text(CN.most_recent_sql_handle) T ) T2 ON T1.session_id=T2.session_id
+ORDER BY [Total Allocation] DESC;

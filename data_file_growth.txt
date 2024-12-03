@@ -1,0 +1,19 @@
+DECLARE @dftrc nvarchar(520), 
+ @filename nvarchar(520), 
+ @OldestFile nvarchar(520)
+
+SELECT @dftrc = path, 
+ @filename = REVERSE(SUBSTRING(reverse(path),0,CHARINDEX('\',reverse(path)))),
+ @OldestFile = REPLACE(path, REVERSE(SUBSTRING(reverse(path),0,CHARINDEX('\',reverse(path)))), '') 
+    + (N'log_' + convert(nvarchar(520), (CONVERT(INT, REPLACE(REPLACE(REVERSE(SUBSTRING(
+       reverse(path),0,CHARINDEX('\',reverse(path)))), '.trc', ''), 'log_', '')) 
+    - (max_files-1))) + N'.trc')
+FROM sys.traces 
+WHERE is_default = 1
+
+-- Display all Log File Auto Grow events
+SELECT ServerName, name, DatabaseName, FileName, LoginName, ClientProcessID, ApplicationName, SPID, Duration, StartTime, EndTime
+FROM ::fn_trace_gettable(@OldestFile, default) a
+ INNER JOIN sys.trace_events b on (a.eventclass = b.trace_event_id)
+WHERE name = 'Data File Auto Grow'
+ORDER BY StartTime DESC

@@ -1,0 +1,38 @@
+--SELECT  DB_NAME() AS DbName ,
+--        sd.name FileGroup,
+--        sf.name AS FileName ,
+--        sf.type_desc ,
+--        sf.physical_name ,
+--        sf.size / 128.0 AS CurrentSizeMB ,
+--        sf.size / 128.0 - CAST(FILEPROPERTY(sf.name, 'SpaceUsed') AS INT) / 128.0 AS FreeSpaceMB ,
+--        LEFT(ROUND(( 1 - ( ( CAST(FILEPROPERTY(sf.name, 'SpaceUsed') AS INT)
+--                             / 128.0 ) / ( sf.size / 128.0 ) ) ) * 100, 2), 4)
+--        + '%' [% Free Space] ,
+--        sf.is_percent_growth ,
+--        sf.growth * 1.0 / 128 AS [Growth MBPS]
+--FROM    sys.database_files sf
+--        left JOIN sys.data_spaces sd ON sf.data_space_id = sd.data_space_id 
+--ORDER BY DbName
+
+SELECT  DB_NAME() AS DbName ,
+        sd.name FileGroup,
+        sf.name AS FileName ,
+                                --mf.name AS LogicalName,
+        sf.type_desc ,
+        sf.physical_name ,
+        sf.size / 128.0 AS CurrentSizeMB ,
+        sf.size / 128.0 - CAST(FILEPROPERTY(sf.name, 'SpaceUsed') AS INT) / 128.0 AS FreeSpaceMB ,
+        LEFT(ROUND(( 1 - ( ( CAST(FILEPROPERTY(sf.name, 'SpaceUsed') AS INT)
+                             / 128.0 ) / ( sf.size / 128.0 ) ) ) * 100, 2), 4)
+        + '%' [% Free Space] ,
+        sf.is_percent_growth ,
+        sf.growth * 1.0 / 128 AS [Growth MBPS]
+  ,d.logical_volume_name
+  ,d.total_bytes/1024/1024/1024 as DiskSizeInGB
+  ,d.available_bytes/1024/1024 as DiskFreeSizeInMB
+FROM    sys.database_files sf
+                            --INNER JOIN sys.master_files MF ON sf.file_id = MF.file_id 
+        left JOIN sys.data_spaces sd ON sf.data_space_id = sd.data_space_id 
+                                --WHERE sf.type_desc = 'LOG'
+        cross apply sys.dm_os_volume_stats (DB_ID(),sf.file_id) d
+ORDER BY DbName
