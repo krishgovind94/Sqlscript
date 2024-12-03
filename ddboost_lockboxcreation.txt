@@ -4,29 +4,29 @@ D:\>cd D:\Program Files\DPSAPPS\MSAPPAGENT\bin
 
 D:\Program Files\DPSAPPS\MSAPPAGENT\bin>msagentadmin administration --createLB --lockbox "D:\Program Files\DPSAPPS\MSAPPAGENT\lockbox" --debug 9
 10/04/18 01:28:22.851748 ACL ACE dump: mode_to_acl result
-10/04/18 01:28:22.867373     ACE for [AMERUS\e99585p]: 0xc0070180
-10/04/18 01:28:22.867373     ACE for [AMERUS\Domain Users]: 0xc0010000
+10/04/18 01:28:22.867373     ACE for [xxxxxx\xxxxxxx]: 0xc0070180
+10/04/18 01:28:22.867373     ACE for [xxxxxx\Domain Users]: 0xc0010000
 10/04/18 01:28:22.867373     ACE for [\Everyone]: 0xc0010000
 Lockbox has been successfully created in the directory 'D:\Program Files\DPSAPPS\MSAPPAGENT\lockbox'.
 
 D:\Program Files\DPSAPPS\MSAPPAGENT\bin>msagentadmin administration --registerLB --config "D:\Program Files\DPSAPPS\MSAPPAGENT\lockbox\ddconfig.cfg" --confirm --debug 9
 10/04/18 01:29:09.348455 ACL ACE dump: mode_to_acl result
-10/04/18 01:29:09.348455     ACE for [AMERUS\e99585p]: 0xc0070180
-10/04/18 01:29:09.348455     ACE for [AMERUS\Domain Users]: 0xc0010000
+10/04/18 01:29:09.348455     ACE for [xxxxxx\xxxxxxx]: 0xc0070180
+10/04/18 01:29:09.348455     ACE for [xxxxxx\Domain Users]: 0xc0010000
 10/04/18 01:29:09.364079     ACE for [\Everyone]: 0xc0010000
-Performing the registration of the device host 'dd7200-mgt.amerus.corp.tld' for DD Boost user 'sqlddboost'.
+Performing the registration of the device host 'xxx-xxxx.xxxxxx.corp.tld' for DD Boost user 'sqlddboost'.
 
 Enter password:
 
 Confirm password:
 
-Logging in to the device host 'dd7200-mgt.amerus.corp.tld' with DD Boost credentials.
-Logging in to the device host 'dd7200-mgt.amerus.corp.tld' with DD Boost credentials was successful.
+Logging in to the device host 'xxx-xxxx.xxxxxx.corp.tld' with DD Boost credentials.
+Logging in to the device host 'xxx-xxxx.xxxxxx.corp.tld' with DD Boost credentials was successful.
 
 Lockbox directory is 'D:\Program Files\DPSAPPS\MSAPPAGENT\lockbox'.
-Device host 'dd7200-mgt.amerus.corp.tld' for DD Boost user 'sqlddboost' has been registered in the lockbox.
+Device host 'xxx-xxxx.xxxxxx.corp.tld' for DD Boost user 'sqlddboost' has been registered in the lockbox.
 
-D:\Program Files\DPSAPPS\MSAPPAGENT\bin>msagentadmin administration --grantLB --lockbox "D:\Program Files\DPSAPPS\MSAPPAGENT\lockbox" -a "LOCKBOX_REMOTE_HOST=dd7200-mgt.amerus.corp.tld"  [--debug 9]
+D:\Program Files\DPSAPPS\MSAPPAGENT\bin>msagentadmin administration --grantLB --lockbox "D:\Program Files\DPSAPPS\MSAPPAGENT\lockbox" -a "LOCKBOX_REMOTE_HOST=xxx-xxxx.xxxxxx.corp.tld"  [--debug 9]
 usage: msagentadmin administration [options]
   -a <attribute=value>:      Specifies a key value name pair.
   -b, --after <start_time>:  Specifies a beginning of the date range.
@@ -97,9 +97,9 @@ Recall the save sets within the save time range from Data Domain Cloud Tier.
   msagentadmin administration --recall [--tier] [--after <start_time>] --before <end_time> --appID <application> --config <config_file_path> [--debug 9]
 
 
-Is 'dd7200-mgt.amerus.corp.tld' a virtual hostname that is part of a cluster? [y/n]: n
-Host 'dd7200-mgt.amerus.corp.tld' has been granted access to the lockbox in the directory 'D:\Program Files\DPSAPPS\MSAPPAGENT\lockbox'.
-Ensure that the administrator on host 'dd7200-mgt.amerus.corp.tld' runs the ddbmadmin -U command to enable backup and recovery operations on host 'dd7200-mgt.amerus.corp.tld'.
+Is 'xxx-xxxx.xxxxxx.corp.tld' a virtual hostname that is part of a cluster? [y/n]: n
+Host 'xxx-xxxx.xxxxxx.corp.tld' has been granted access to the lockbox in the directory 'D:\Program Files\DPSAPPS\MSAPPAGENT\lockbox'.
+Ensure that the administrator on host 'xxx-xxxx.xxxxxx.corp.tld' runs the ddbmadmin -U command to enable backup and recovery operations on host 'xxx-xxxx.xxxxxx.corp.tld'.
 
 D:\Program Files\DPSAPPS\MSAPPAGENT\bin>
 
